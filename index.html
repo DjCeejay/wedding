@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Share Your Wedding Moments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f3f0;
+      --bg-accent: rgba(255, 255, 255, 0.65);
+      --primary: #b97770;
+      --primary-dark: #9b5b53;
+      --gold: #d9b26d;
+      --text: #2d1e1a;
+      --muted: #6f5b57;
+      --card: rgba(255, 255, 255, 0.82);
+      --shadow: 0 28px 60px rgba(35, 23, 20, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, rgba(253, 246, 243, 0.94), rgba(246, 228, 224, 0.7)), url('https://images.unsplash.com/photo-1529158062015-cad636e69505?auto=format&fit=crop&w=1600&q=80') center/cover fixed;
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 80px;
+    }
+
+    .page {
+      width: min(960px, 100%);
+      display: grid;
+      gap: 40px;
+    }
+
+    header {
+      text-align: center;
+      background: var(--bg-accent);
+      border-radius: var(--radius);
+      padding: 36px 28px 44px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before,
+    header::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      background: rgba(243, 214, 207, 0.55);
+      border-radius: 50%;
+      top: -60px;
+      z-index: 0;
+      filter: blur(0.5px);
+    }
+
+    header::before {
+      left: -40px;
+    }
+
+    header::after {
+      right: -50px;
+      background: rgba(224, 190, 171, 0.48);
+    }
+
+    .tagline {
+      font-size: 0.85rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', 'Times New Roman', serif;
+      font-weight: 700;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      margin: 0;
+      line-height: 1.15;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 span {
+      color: var(--primary);
+      display: inline-block;
+    }
+
+    .details {
+      position: relative;
+      z-index: 1;
+      color: var(--muted);
+      margin-top: 16px;
+      font-size: 1rem;
+    }
+
+    .details strong {
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-family: 'Playfair Display', 'Times New Roman', serif;
+      font-size: 1.7rem;
+      color: var(--primary-dark);
+    }
+
+    .steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 20px;
+    }
+
+    .steps li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .steps span {
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      background: rgba(185, 119, 112, 0.16);
+      color: var(--primary-dark);
+      display: grid;
+      place-items: center;
+      font-weight: 600;
+    }
+
+    .steps h3 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+    }
+
+    .upload-card {
+      display: grid;
+      gap: 20px;
+    }
+
+    .upload-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .dropzone {
+      position: relative;
+      border: 2px dashed rgba(185, 119, 112, 0.35);
+      border-radius: 18px;
+      padding: 42px 24px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.72);
+      transition: border 0.25s ease, transform 0.25s ease, background 0.25s ease;
+      cursor: pointer;
+    }
+
+    .dropzone.active {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .dropzone strong {
+      color: var(--primary-dark);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dropzone small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .file-name {
+      margin: 0;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button[type="submit"] {
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(120deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(159, 93, 84, 0.28);
+    }
+
+    button[type="submit"]:disabled {
+      cursor: wait;
+      opacity: 0.75;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .uploading .spinner {
+      display: inline-block;
+    }
+
+    .status {
+      font-size: 0.95rem;
+      color: var(--primary-dark);
+      min-height: 20px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @media (max-width: 680px) {
+      body {
+        padding: 28px 16px 60px;
+      }
+
+      header {
+        padding: 28px 18px 38px;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      .steps {
+        gap: 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="tagline">Picture Perfect</p>
+      <h1>Share the love for <span>Vaishnavi &amp; Arjun</span></h1>
+      <p class="details">Captured something magical? Upload your photos or videos from <strong>12 July 2024</strong> so we can relive the joy with you.</p>
+    </header>
+
+    <section class="grid">
+      <article class="card upload-card">
+        <h2>Upload memories</h2>
+        <p>Files go straight to our private wedding drive. Please give large videos a moment to finish sending.</p>
+
+        <form id="uploadForm">
+          <label class="dropzone" id="dropzone">
+            <input type="file" id="file" name="file" accept="image/*,video/*" multiple required>
+            <div>
+              <p class="file-name" id="fileName">Drag &amp; drop up to 10 files<br>or <strong>tap to browse</strong></p>
+              <small>Images &amp; videos welcome · We can handle up to 10 files at once</small>
+            </div>
+          </label>
+
+          <div class="actions">
+            <button type="submit" id="submitBtn">
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="buttonText">Send to the couple</span>
+            </button>
+            <p class="status" id="status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </article>
+
+      <aside class="card">
+        <h2>Quick tips</h2>
+        <ul class="steps">
+          <li>
+            <span>1</span>
+            <div>
+              <h3>Capture the joy</h3>
+              <p>Snap candid smiles, dances, or heartfelt toasts. We love real, in-the-moment memories.</p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <h3>Upload in batches</h3>
+              <p>Select up to 10 files at a time. Want to share more? Send another batch once this one finishes.</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <h3>We'll create the keepsake</h3>
+              <p>Everything lands in our shared Google Drive so we can relive the celebration and make a highlight reel.</p>
+            </div>
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <footer>
+      Thank you for celebrating with us. Need a hand? Reach out to <a href="tel:+911234567890">+91 12345 67890</a> and we'll help you upload.
+    </footer>
+  </main>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('file');
+    const dropzone = document.getElementById('dropzone');
+    const fileName = document.getElementById('fileName');
+    const statusText = document.getElementById('status');
+    const submitBtn = document.getElementById('submitBtn');
+    const buttonText = document.getElementById('buttonText');
+    const GOOGLE_APPS_SCRIPT_URL = 'YOUR_SCRIPT_URL'; // TODO: Replace with your Google Apps Script web app URL.
+    const MAX_FILES = 10;
+
+    function resetStatus(message = '') {
+      statusText.textContent = message;
+    }
+
+    function setUploadingState(isUploading) {
+      submitBtn.disabled = isUploading;
+      submitBtn.classList.toggle('uploading', isUploading);
+      buttonText.textContent = isUploading ? 'Uploading…' : 'Send to the couple';
+      if (!isUploading) {
+        submitBtn.blur();
+      }
+    }
+
+    function describeSelection(files) {
+      if (files.length === 0) {
+        return 'Drag &amp; drop up to 10 files<br>or <strong>tap to browse</strong>';
+      }
+
+      if (files.length === 1) {
+        return files[0].name;
+      }
+
+      const first = files[0].name;
+      const remaining = files.length - 1;
+      return `${files.length} files selected · ${first}${remaining ? ` + ${remaining} more` : ''}`;
+    }
+
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files);
+      fileName.innerHTML = describeSelection(files);
+      resetStatus('');
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        dropzone.classList.add('active');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        dropzone.classList.remove('active');
+      });
+    });
+
+    dropzone.addEventListener('drop', event => {
+      const files = event.dataTransfer.files;
+      if (files && files.length > 0) {
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    uploadForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const files = Array.from(fileInput.files);
+
+      if (files.length === 0) {
+        resetStatus('Please choose photos or videos to upload.');
+        return;
+      }
+
+      if (files.length > MAX_FILES) {
+        resetStatus(`Please select up to ${MAX_FILES} files per upload.`);
+        return;
+      }
+
+      setUploadingState(true);
+      let uploadedCount = 0;
+
+      try {
+        for (let i = 0; i < files.length; i += 1) {
+          const file = files[i];
+          resetStatus(`Uploading ${file.name} (${i + 1}/${files.length})…`);
+
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Upload failed');
+          }
+
+          uploadedCount += 1;
+        }
+
+        const message = uploadedCount === files.length
+          ? `All set! ${uploadedCount} ${uploadedCount === 1 ? 'file has' : 'files have'} been shared with the couple.`
+          : `Uploaded ${uploadedCount} files. Please try the remaining ones again.`;
+
+        resetStatus(message);
+        uploadForm.reset();
+        fileName.innerHTML = describeSelection([]);
+      } catch (error) {
+        console.error(error);
+        const pending = files.length - uploadedCount;
+        resetStatus(`We sent ${uploadedCount} file${uploadedCount === 1 ? '' : 's'} successfully. ${pending > 0 ? `Please try uploading the remaining ${pending}.` : 'Please try again in a moment.'}`);
+      } finally {
+        setUploadingState(false);
+      }
+    });
+  </script>
+</body>
+</html>
