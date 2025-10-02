@@ -492,7 +492,7 @@
           <p id="status" class="status" role="status" aria-live="polite"></p>
           <p class="note">Need help? Call our support desk at <a href="tel:+911234567890">+91 12345 67890</a>.</p>
         </form>
-        <p class="note">Uploads are handled securely via our private Google Apps Script, then forwarded to Cloudinary for the gallery below.</p>
+        <p class="note">Uploads travel straight to our secure Cloudinary vault and appear in the memory gallery moments later.</p>
       </section>
 
       <section aria-labelledby="gallery">
@@ -532,12 +532,13 @@
     const galleryEmpty = document.getElementById('galleryEmpty');
     const mediaCardTemplate = document.getElementById('mediaCardTemplate');
 
-    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSGwWe1smkuPZCdA7TGt69U94dQrQDKKJ6bihgLhaePJd9aXgq7Vu1q23bcuJ5EU0-Nw/exec';
-
     const CLOUDINARY_CONFIG = {
       cloudName: 'dl5wxxss5',
       galleryTag: 'love-fusion',
     };
+
+    const CLOUDINARY_UPLOAD_PRESET = 'love_fusion_uploads';
+    const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/auto/upload`;
 
     const MAX_FILES = 10;
 
@@ -622,14 +623,20 @@
 
           const formData = new FormData();
           formData.append('file', file);
+          formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+          formData.append('tags', CLOUDINARY_CONFIG.galleryTag);
+          formData.append('context[caption]', file.name.replace(/\.[^/.]+$/, ''));
 
-          const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+          const response = await fetch(CLOUDINARY_UPLOAD_URL, {
             method: 'POST',
             body: formData,
           });
 
-          if (!response.ok) {
-            throw new Error('Upload failed');
+          const result = await response.json().catch(() => ({}));
+
+          if (!response.ok || result?.error) {
+            const message = result?.error?.message || 'Upload failed';
+            throw new Error(message);
           }
 
           uploadedCount += 1;
@@ -646,7 +653,10 @@
       } catch (error) {
         console.error(error);
         const pending = files.length - uploadedCount;
-        resetStatus(`We sent ${uploadedCount} file${uploadedCount === 1 ? '' : 's'} successfully. ${pending > 0 ? `Please try uploading the remaining ${pending}.` : 'Please try again in a moment.'}`);
+        const errorMessage = error?.message || 'Please try again in a moment.';
+        const successNote = uploadedCount > 0 ? `Uploaded ${uploadedCount} file${uploadedCount === 1 ? '' : 's'} successfully.` : '';
+        const retryNote = pending > 0 ? `Please retry the remaining ${pending}.` : '';
+        resetStatus([successNote, errorMessage, retryNote].filter(Boolean).join(' '));
       } finally {
         setUploadingState(false);
       }
