@@ -48,6 +48,7 @@
       width: min(1080px, 100%);
       display: grid;
       gap: 48px;
+      padding-inline: clamp(12px, 4vw, 24px);
     }
 
     header {
@@ -96,6 +97,7 @@
       justify-content: center;
       gap: 16px;
       flex-wrap: wrap;
+      padding-inline: clamp(0px, 3vw, 12px);
     }
 
     .link-button {
@@ -330,9 +332,12 @@
     .gallery-widget {
       position: relative;
       border-radius: 24px;
-      padding: 18px;
+      padding: clamp(18px, 4vw, 28px);
       background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
       box-shadow: 0 24px 48px rgba(47, 29, 41, 0.16);
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .gallery-widget .cld-gallery {
@@ -340,6 +345,7 @@
       --cld-gallery-background: transparent;
       --cld-gallery-text-color: var(--muted);
       --cld-gallery-accent: var(--rich-rose);
+      min-height: 260px;
     }
 
     footer.page-foot {
@@ -354,6 +360,13 @@
       text-decoration: none;
     }
 
+    .download-hint {
+      margin: -4px 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
     @media (max-width: 640px) {
       body {
         padding: 24px 16px 60px;
@@ -364,7 +377,15 @@
       }
 
       .gallery-widget {
-        padding: 14px;
+        padding: clamp(14px, 5vw, 20px);
+      }
+
+      .hero {
+        text-align: center;
+      }
+
+      .hero-actions {
+        flex-direction: column;
       }
     }
   </style>
@@ -465,6 +486,7 @@
           <p class="note">Fresh uploads will appear here. Tap an image to open full quality and download.</p>
         </div>
         <div id="galleryWidget" class="gallery-widget"></div>
+        <p class="download-hint">Tip: Tap any tile to open it. Use the download arrow on desktop, or long-press on phones to save.</p>
       </section>
     </main>
 
