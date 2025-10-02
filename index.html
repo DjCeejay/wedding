@@ -625,7 +625,8 @@
           formData.append('file', file);
           formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
           formData.append('tags', CLOUDINARY_CONFIG.galleryTag);
-          formData.append('context[caption]', file.name.replace(/\.[^/.]+$/, ''));
+          const caption = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' ').trim();
+          formData.append('context', `caption=${caption || 'Love Fusion Memory'}`);
 
           const response = await fetch(CLOUDINARY_UPLOAD_URL, {
             method: 'POST',
