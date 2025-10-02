@@ -663,6 +663,31 @@
       }
     });
 
+    async function fetchResourceList(resourceType, versionParam) {
+      const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
+      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${galleryTag}.json${versionParam}`;
+      const response = await fetch(listUrl, { cache: 'no-store' });
+
+      if (response.status === 404) {
+        return [];
+      }
+
+      if (!response.ok) {
+        const details = await response.json().catch(() => ({}));
+        const message = details?.error?.message || 'Unable to load gallery list';
+        throw new Error(message);
+      }
+
+      const data = await response.json();
+      return data.resources || [];
+    }
+
+    function sortByCreatedAtDesc(a, b) {
+      const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return bDate - aDate;
+    }
+
     async function loadGallery(forceRefresh = false) {
       const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
       if (!cloudName || cloudName === 'your-cloud-name') {
@@ -676,15 +701,12 @@
 
       try {
         const versionParam = forceRefresh ? `?v=${Date.now()}` : '';
-        const listUrl = `https://res.cloudinary.com/${cloudName}/image/list/${galleryTag}.json${versionParam}`;
-        const response = await fetch(listUrl);
+        const [imageResources, videoResources] = await Promise.all([
+          fetchResourceList('image', versionParam),
+          fetchResourceList('video', versionParam),
+        ]);
 
-        if (!response.ok) {
-          throw new Error('Unable to load gallery list');
-        }
-
-        const data = await response.json();
-        const resources = data.resources || [];
+        const resources = [...imageResources, ...videoResources].sort(sortByCreatedAtDesc);
 
         galleryGrid.innerHTML = '';
 
@@ -730,7 +752,7 @@
       } catch (error) {
         console.error(error);
         galleryEmpty.hidden = false;
-        galleryEmpty.textContent = 'We could not connect to Cloudinary. Please confirm your tag and try again.';
+        galleryEmpty.textContent = error?.message || 'We could not connect to Cloudinary. Please confirm your tag and try again.';
       }
     }
 
