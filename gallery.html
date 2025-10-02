@@ -47,6 +47,7 @@
       width: min(1120px, 100%);
       display: grid;
       gap: 40px;
+      padding-inline: clamp(12px, 4vw, 28px);
     }
 
     header {
@@ -94,7 +95,7 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 12px 16px;
     }
 
     nav a {
@@ -104,6 +105,10 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.48);
+      box-shadow: 0 10px 24px rgba(47, 29, 41, 0.12);
     }
 
     nav a:hover {
@@ -156,6 +161,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
+      padding-inline: clamp(0px, 3vw, 12px);
     }
 
     .featured-gallery figure {
@@ -204,9 +210,12 @@
 
     .gallery-widget {
       border-radius: 26px;
-      padding: 20px;
+      padding: clamp(18px, 4vw, 28px);
       background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.78));
       box-shadow: 0 28px 52px rgba(47, 29, 41, 0.16);
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .gallery-widget .cld-gallery {
@@ -214,13 +223,15 @@
       --cld-gallery-text-color: var(--muted);
       --cld-gallery-accent: var(--rich-rose);
       --cld-gallery-navigation-color: var(--deep-lilac);
+      min-height: 260px;
     }
 
     .filters {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 12px 16px;
       align-items: center;
+      justify-content: center;
     }
 
     .filters button {
@@ -252,6 +263,13 @@
       font-weight: 600;
     }
 
+    .download-hint {
+      margin: -4px 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
     @media (max-width: 640px) {
       body {
         padding: 28px 16px 60px;
@@ -259,10 +277,33 @@
 
       .featured-gallery {
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
       }
 
       .gallery-widget {
-        padding: 16px;
+        padding: clamp(14px, 5vw, 20px);
+      }
+
+      nav {
+        justify-content: center;
+      }
+
+      nav a {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .hero {
+        text-align: center;
+      }
+
+      .filters {
+        flex-direction: column;
+      }
+
+      .filters button {
+        width: 100%;
+        justify-content: center;
       }
     }
   </style>
@@ -306,6 +347,7 @@
           <p class="note">Images and videos displayed straight from our Cloudinary folder. Tap to view full quality or download.</p>
         </div>
         <div id="galleryWidget" class="gallery-widget"></div>
+        <p class="download-hint">Tip: Tap any media to open, then use the download arrow. On phones, long-press the image to save.</p>
       </section>
     </main>
 
@@ -364,6 +406,10 @@
     function ensureGalleryReady(attempt = 0) {
       if (galleryWidgetInstance) {
         return;
+      }
+
+      if (galleryMeta && attempt === 0) {
+        galleryMeta.textContent = 'Loading the latest memories…';
       }
 
       if (window.cloudinary && cloudinary.galleryWidget) {
