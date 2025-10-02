@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://product-gallery.cloudinary.com/all.css">
   <style>
     :root {
       --baby-pink: #fad8e8;
@@ -326,55 +327,19 @@
       color: var(--muted);
     }
 
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 18px;
-    }
-
-    .gallery-card {
+    .gallery-widget {
       position: relative;
-      background: linear-gradient(155deg, rgba(250, 216, 232, 0.48), rgba(214, 196, 255, 0.46), rgba(189, 230, 255, 0.46));
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 20px 45px rgba(47, 29, 41, 0.16);
-      display: grid;
+      border-radius: 24px;
+      padding: 18px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.78));
+      box-shadow: 0 24px 48px rgba(47, 29, 41, 0.16);
     }
 
-    .gallery-card img,
-    .gallery-card video {
-      width: 100%;
-      height: clamp(200px, 28vw, 260px);
-      object-fit: cover;
-      display: block;
-    }
-
-    .gallery-card footer {
-      padding: 12px 16px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .gallery-card footer span {
-      font-size: 0.9rem;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .download-link {
-      color: var(--rich-rose);
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .gallery-empty {
-      font-size: 0.95rem;
-      color: var(--muted);
-      text-align: center;
+    .gallery-widget .cld-gallery {
+      --cld-gallery-navigation-color: var(--deep-lilac);
+      --cld-gallery-background: transparent;
+      --cld-gallery-text-color: var(--muted);
+      --cld-gallery-accent: var(--rich-rose);
     }
 
     footer.page-foot {
@@ -398,9 +363,8 @@
         padding: 32px 18px 36px;
       }
 
-      .gallery-card img,
-      .gallery-card video {
-        height: min(58vw, 210px);
+      .gallery-widget {
+        padding: 14px;
       }
     }
   </style>
@@ -498,10 +462,9 @@
       <section aria-labelledby="gallery">
         <div>
           <h2 id="gallery">Cloudinary Memory Gallery</h2>
-          <p class="note">Fresh uploads will appear here. Tap the arrow to download full quality.</p>
+          <p class="note">Fresh uploads will appear here. Tap an image to open full quality and download.</p>
         </div>
-        <div id="galleryGrid" class="gallery-grid" role="list"></div>
-        <p id="galleryEmpty" class="gallery-empty" hidden>Gallery loading…</p>
+        <div id="galleryWidget" class="gallery-widget"></div>
       </section>
     </main>
 
@@ -509,17 +472,7 @@
       Thank you for celebrating with us. Let love lead the way.
     </footer>
   </div>
-
-  <template id="mediaCardTemplate">
-    <article class="gallery-card" role="listitem">
-      <div class="media-wrapper"></div>
-      <footer>
-        <span class="media-title"></span>
-        <a class="download-link" target="_blank" rel="noopener" download>Download</a>
-      </footer>
-    </article>
-  </template>
-
+  <script src="https://product-gallery.cloudinary.com/all.js" defer></script>
   <script>
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('file');
@@ -528,13 +481,13 @@
     const statusText = document.getElementById('status');
     const submitBtn = document.getElementById('submitBtn');
     const buttonText = document.getElementById('buttonText');
-    const galleryGrid = document.getElementById('galleryGrid');
-    const galleryEmpty = document.getElementById('galleryEmpty');
-    const mediaCardTemplate = document.getElementById('mediaCardTemplate');
+    const galleryWidgetContainer = document.getElementById('galleryWidget');
+    let galleryWidgetInstance = null;
 
     const CLOUDINARY_CONFIG = {
       cloudName: 'dl5vwxss5',
       galleryTag: 'love-fusion',
+      galleryFolder: 'weddings/love_fusion',
     };
 
     const CLOUDINARY_UPLOAD_PRESET = 'love_fusion_uploads';
@@ -650,7 +603,7 @@
         resetStatus(message);
         uploadForm.reset();
         fileName.innerHTML = describeSelection([]);
-        loadGallery(true);
+        refreshGalleryWidget();
       } catch (error) {
         console.error(error);
         const pending = files.length - uploadedCount;
@@ -663,101 +616,59 @@
       }
     });
 
-    async function fetchResourceList(resourceType, versionParam) {
-      const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
-      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${galleryTag}.json${versionParam}`;
-      const response = await fetch(listUrl, { cache: 'no-store' });
-
-      if (response.status === 404) {
-        return [];
-      }
-
-      if (!response.ok) {
-        const details = await response.json().catch(() => ({}));
-        const message = details?.error?.message || 'Unable to load gallery list';
-        throw new Error(message);
-      }
-
-      const data = await response.json();
-      return data.resources || [];
-    }
-
-    function sortByCreatedAtDesc(a, b) {
-      const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
-      return bDate - aDate;
-    }
-
-    async function loadGallery(forceRefresh = false) {
-      const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
-      if (!cloudName || cloudName === 'your-cloud-name') {
-        galleryEmpty.hidden = false;
-        galleryEmpty.textContent = 'Set your Cloudinary cloud name to display the gallery.';
+    function renderGalleryWidget() {
+      if (!galleryWidgetContainer || !window.cloudinary || !cloudinary.galleryWidget) {
         return;
       }
 
-      galleryEmpty.hidden = false;
-      galleryEmpty.textContent = 'Gallery loading…';
+      galleryWidgetInstance = cloudinary.galleryWidget({
+        container: '#galleryWidget',
+        cloudName: CLOUDINARY_CONFIG.cloudName,
+        mediaAssets: [
+          { folder: CLOUDINARY_CONFIG.galleryFolder },
+        ],
+        carouselStyle: 'minimal',
+        carouselLocation: 'bottom',
+        navigationButtonProps: {
+          color: '#6f5fd5',
+        },
+        assetName: { display: true },
+        zoom: true,
+        showDownloadButton: true,
+        transformation: {
+          fetchFormat: 'auto',
+          quality: 'auto',
+        },
+      });
 
-      try {
-        const versionParam = forceRefresh ? `?v=${Date.now()}` : '';
-        const [imageResources, videoResources] = await Promise.all([
-          fetchResourceList('image', versionParam),
-          fetchResourceList('video', versionParam),
-        ]);
+      galleryWidgetInstance.render();
+    }
 
-        const resources = [...imageResources, ...videoResources].sort(sortByCreatedAtDesc);
+    function ensureGalleryWidgetReady(attempt = 0) {
+      if (galleryWidgetInstance) {
+        return;
+      }
 
-        galleryGrid.innerHTML = '';
+      if (window.cloudinary && cloudinary.galleryWidget) {
+        renderGalleryWidget();
+      } else if (attempt < 20) {
+        setTimeout(() => ensureGalleryWidgetReady(attempt + 1), 200);
+      }
+    }
 
-        if (resources.length === 0) {
-          galleryEmpty.hidden = false;
-          galleryEmpty.textContent = 'No media yet. Upload treasures to unveil them here!';
-          return;
-        }
+    function refreshGalleryWidget() {
+      if (!galleryWidgetInstance) {
+        ensureGalleryWidgetReady();
+        return;
+      }
 
-        galleryEmpty.hidden = true;
-
-        resources.forEach(resource => {
-          const card = mediaCardTemplate.content.firstElementChild.cloneNode(true);
-          const mediaWrapper = card.querySelector('.media-wrapper');
-          const titleEl = card.querySelector('.media-title');
-          const downloadLink = card.querySelector('.download-link');
-
-          const publicId = resource.public_id;
-          const format = resource.format;
-          const isVideo = resource.resource_type === 'video';
-
-          const mediaUrl = `https://res.cloudinary.com/${cloudName}/${isVideo ? 'video' : 'image'}/upload/${publicId}.${format}`;
-
-          if (isVideo) {
-            const video = document.createElement('video');
-            video.controls = true;
-            video.src = mediaUrl;
-            video.preload = 'metadata';
-            mediaWrapper.appendChild(video);
-          } else {
-            const img = document.createElement('img');
-            img.src = `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,w_900,h_900/${publicId}.${format}`;
-            img.alt = publicId.split('/').pop().replace(/[-_]/g, ' ');
-            mediaWrapper.appendChild(img);
-          }
-
-          titleEl.textContent = resource.context?.custom?.caption || resource.public_id.split('/').pop();
-          downloadLink.href = mediaUrl;
-          downloadLink.setAttribute('download', `${publicId}.${format}`);
-
-          galleryGrid.appendChild(card);
-        });
-      } catch (error) {
-        console.error(error);
-        galleryEmpty.hidden = false;
-        galleryEmpty.textContent = error?.message || 'We could not connect to Cloudinary. Please confirm your tag and try again.';
+      if (typeof galleryWidgetInstance.refresh === 'function') {
+        galleryWidgetInstance.refresh();
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadGallery();
+      ensureGalleryWidgetReady();
     });
   </script>
 </body>
