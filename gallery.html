@@ -433,6 +433,7 @@
     const CLOUDINARY_CONFIG = {
       cloudName: 'dl5vwxss5',
       galleryTag: 'love-fusion',
+      galleryFolder: 'weddings/love_fusion',
     };
 
     const galleryGrid = document.getElementById('galleryGrid');
@@ -441,9 +442,14 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const mediaCardTemplate = document.getElementById('mediaCardTemplate');
 
+    function folderToListKey(folder) {
+      return folder.replace(/\//g, '_');
+    }
+
     async function fetchResourceList(resourceType, cacheBuster = '') {
-      const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
-      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${galleryTag}.json${cacheBuster}`;
+      const { cloudName, galleryTag, galleryFolder } = CLOUDINARY_CONFIG;
+      const listKey = galleryFolder ? folderToListKey(galleryFolder) : galleryTag;
+      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${listKey}.json${cacheBuster}`;
       const response = await fetch(listUrl, { cache: 'no-store' });
 
       if (response.status === 404) {
