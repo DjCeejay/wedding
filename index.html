@@ -487,7 +487,6 @@
     const CLOUDINARY_CONFIG = {
       cloudName: 'dl5vwxss5',
       galleryTag: 'love-fusion',
-      galleryFolder: 'weddings/love_fusion',
     };
 
     const CLOUDINARY_UPLOAD_PRESET = 'love_fusion_uploads';
@@ -625,9 +624,9 @@
         container: '#galleryWidget',
         cloudName: CLOUDINARY_CONFIG.cloudName,
         mediaAssets: [
-          { folder: CLOUDINARY_CONFIG.galleryFolder },
+          { tag: CLOUDINARY_CONFIG.galleryTag },
         ],
-        carouselStyle: 'minimal',
+        carouselStyle: 'thumbnails',
         carouselLocation: 'bottom',
         navigationButtonProps: {
           color: '#6f5fd5',
