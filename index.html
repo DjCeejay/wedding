@@ -312,23 +312,39 @@
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: clamp(16px, 3vw, 22px);
+      gap: clamp(16px, 3vw, 24px);
       width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    #galleryGrid .gallery-card:nth-child(n+5) {
+      display: none;
     }
 
     .gallery-card {
       position: relative;
       border-radius: 24px;
       overflow: hidden;
-      background: linear-gradient(155deg, rgba(250, 216, 232, 0.5), rgba(214, 196, 255, 0.46), rgba(189, 230, 255, 0.46));
       box-shadow: 0 26px 48px rgba(47, 29, 41, 0.18);
-      display: grid;
-      grid-template-rows: auto auto;
+      background: var(--surface-strong);
+      isolation: isolate;
     }
 
     .gallery-card .media-wrapper {
       position: relative;
       overflow: hidden;
+    }
+
+    .gallery-card .media-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 55%;
+      background: linear-gradient(180deg, rgba(47, 29, 41, 0) 0%, rgba(47, 29, 41, 0.6) 100%);
+      transition: opacity 0.3s ease;
+      opacity: 0.75;
+      pointer-events: none;
     }
 
     .gallery-card img,
@@ -337,58 +353,100 @@
       aspect-ratio: 4 / 5;
       object-fit: cover;
       display: block;
-      transition: transform 0.3s ease;
+      transition: transform 0.35s ease;
     }
 
     .gallery-card:hover img,
     .gallery-card:hover video {
-      transform: scale(1.02);
+      transform: scale(1.04);
     }
 
     .gallery-card footer {
-      padding: 16px clamp(16px, 4vw, 22px) 20px;
+      position: absolute;
+      left: clamp(12px, 3vw, 18px);
+      right: clamp(12px, 3vw, 18px);
+      bottom: clamp(12px, 3vw, 18px);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 14px;
-      background: rgba(255, 255, 255, 0.85);
+      gap: 12px;
+      padding: clamp(10px, 3vw, 14px) clamp(14px, 4vw, 18px);
+      background: linear-gradient(135deg, rgba(111, 95, 213, 0.85), rgba(217, 124, 165, 0.85));
+      border-radius: 16px;
+      box-shadow: 0 10px 22px rgba(47, 29, 41, 0.18);
+      color: #fff;
+      z-index: 1;
     }
 
     .media-title {
       font-size: 0.95rem;
-      color: var(--muted);
+      color: #fff;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      flex: 1 1 auto;
     }
 
     .download-link {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
+      gap: 6px;
+      padding: 8px 14px;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--deep-lilac), var(--rich-rose));
+      background: rgba(255, 255, 255, 0.18);
       color: #fff;
       font-weight: 600;
       text-decoration: none;
-      box-shadow: 0 16px 32px rgba(47, 29, 41, 0.18);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      transition: transform 0.2s ease, background 0.2s ease;
     }
 
     .download-link:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 38px rgba(47, 29, 41, 0.24);
-    }
-
-    .download-link span {
-      font-size: 0.85rem;
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.32);
     }
 
     .gallery-empty {
       text-align: center;
       font-size: 0.95rem;
       color: var(--muted);
+      margin: clamp(12px, 3vw, 20px) 0 0;
+    }
+
+    .gallery-cta {
+      display: flex;
+      justify-content: center;
+      margin: clamp(10px, 3vw, 18px) 0 0;
+    }
+
+    .view-more-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(250, 216, 232, 0.55), rgba(189, 230, 255, 0.45));
+      color: var(--deep-lilac);
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 12px 26px rgba(47, 29, 41, 0.14);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .gallery-empty:not([hidden]) + .gallery-cta {
+      display: none;
+    }
+
+    .view-more-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(47, 29, 41, 0.18);
+    }
+
+    .download-hint {
+      margin: -4px 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
     }
 
     footer.page-foot {
