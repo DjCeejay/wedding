@@ -429,11 +429,10 @@
     </article>
   </template>
 
-  <script>
+ <script>
     const CLOUDINARY_CONFIG = {
       cloudName: 'dl5vwxss5',
       galleryTag: 'love-fusion',
-      galleryFolder: 'weddings/love_fusion',
     };
 
     const galleryGrid = document.getElementById('galleryGrid');
@@ -441,30 +440,29 @@
     const galleryMeta = document.getElementById('galleryMeta');
     const refreshBtn = document.getElementById('refreshBtn');
     const mediaCardTemplate = document.getElementById('mediaCardTemplate');
-
-    function folderToListKey(folder) {
-      return folder.replace(/\//g, '_');
-    }
+    const loadMoreBtn = document.getElementById('galleryLoadMore');
 
     async function fetchResourceList(resourceType, cacheBuster = '') {
-      const { cloudName, galleryTag, galleryFolder } = CLOUDINARY_CONFIG;
-      const listKey = galleryFolder ? folderToListKey(galleryFolder) : galleryTag;
-      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${listKey}.json${cacheBuster}`;
+      const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
+      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${galleryTag}.json${cacheBuster}`;
+
       const response = await fetch(listUrl, { cache: 'no-store' });
 
       if (response.status === 404) {
+        // No assets yet for this tag
         return [];
       }
 
       if (!response.ok) {
         const details = await response.json().catch(() => ({}));
-        const message = details?.error?.message || 'Unable to reach Cloudinary list endpoint';
+        const message = details?.error?.message || 'Unable to load gallery list';
         throw new Error(message);
       }
 
       const data = await response.json();
       return data.resources || [];
     }
+
 
     function createMediaCard(resource) {
       const card = mediaCardTemplate.content.firstElementChild.cloneNode(true);
@@ -476,7 +474,23 @@
       const format = resource.format;
       const isVideo = resource.resource_type === 'video';
       const baseUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}`;
+
+      // Nice clean filename from caption or the last part of public_id
+      const fileName =
+        (resource.context?.custom?.caption || publicId.split('/').pop())
+          .replace(/[^\w\-]+/g, '_');
+
+      // Preview URL stays the same as before:
       const mediaUrl = `${baseUrl}/${isVideo ? 'video' : 'image'}/upload/${publicId}.${format}`;
+
+      // Force download using fl_attachment:<filename>
+      const attachmentUrl =
+        `${baseUrl}/${isVideo ? 'video' : 'image'}` +
+        `/upload/fl_attachment:${encodeURIComponent(fileName)}.${format}` +
+        `/${publicId}.${format}`;
+
+      downloadLink.href = attachmentUrl;
+      downloadLink.setAttribute('download', `${fileName}.${format}`);
 
       if (isVideo) {
         const video = document.createElement('video');
@@ -489,6 +503,7 @@
       } else {
         const img = document.createElement('img');
         img.loading = 'lazy';
+        img.decoding = 'async';
         img.src = `${baseUrl}/image/upload/c_fill,w_1100,h_1100/${publicId}.${format}`;
         img.alt = (resource.context?.custom?.caption || publicId.split('/').pop()).replace(/[-_]/g, ' ');
         wrapper.appendChild(img);
@@ -506,6 +521,10 @@
       if (!cloudName || cloudName === 'your-cloud-name') {
         galleryEmpty.hidden = false;
         galleryEmpty.textContent = 'Set your Cloudinary cloud name to display the gallery.';
+        if (galleryMeta) {
+          galleryMeta.textContent = '';
+        }
+        if (loadMoreBtn) loadMoreBtn.hidden = true;
         return;
       }
 
@@ -549,6 +568,7 @@
         });
       } catch (error) {
         console.error(error);
+        galleryGrid.innerHTML = '';
         galleryEmpty.hidden = false;
         galleryEmpty.textContent = error?.message || 'We could not load the gallery. Please check your Cloudinary settings and try again.';
         if (galleryMeta) {
@@ -557,9 +577,11 @@
       }
     }
 
-    refreshBtn.addEventListener('click', () => {
-      loadGallery(true);
-    });
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        loadGallery(true);
+      });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadGallery();
