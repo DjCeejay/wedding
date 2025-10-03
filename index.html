@@ -6,6 +6,7 @@
   <title>The Love Fusion – Share & Celebrate</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -38,13 +39,18 @@
         radial-gradient(circle at 80% 10%, rgba(214, 196, 255, 0.85), transparent 60%),
         radial-gradient(circle at 50% 85%, rgba(189, 230, 255, 0.9), transparent 65%),
         linear-gradient(135deg, rgba(250, 216, 232, 0.74), rgba(214, 196, 255, 0.74) 45%, rgba(189, 230, 255, 0.74));
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px 80px;
+      display: grid;
+      place-content: start center;
+      justify-items: center;
+      padding: clamp(32px, 5vw, 80px) clamp(16px, 4vw, 32px);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     .page {
       width: min(1080px, 100%);
+      margin-inline: auto;
       display: grid;
       gap: 48px;
       padding-inline: clamp(12px, 4vw, 24px);
@@ -89,6 +95,9 @@
       z-index: 1;
       display: grid;
       gap: 24px;
+      text-align: center;
+      justify-items: center;
+      align-content: start;
     }
 
     .hero-actions {
@@ -174,8 +183,9 @@
 
     .couple-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: clamp(14px, 3vw, 20px);
+      align-items: stretch;
     }
 
     .couple-gallery img {
@@ -185,16 +195,12 @@
       object-fit: cover;
       box-shadow: 0 22px 44px rgba(47, 29, 41, 0.16);
       transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .couple-gallery img:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 28px 56px rgba(47, 29, 41, 0.2);
+      display: block;
     }
 
     main {
       display: grid;
-      gap: 36px;
+      gap: clamp(28px, 5vw, 44px);
     }
 
     section {
@@ -205,7 +211,7 @@
       box-shadow: var(--shadow);
       padding: clamp(24px, 4vw, 40px);
       display: grid;
-      gap: 24px;
+      gap: clamp(18px, 3vw, 26px);
     }
 
     section h2 {
@@ -218,21 +224,147 @@
     .note {
       font-size: 0.95rem;
       color: var(--muted);
+      margin: 0;
     }
 
-    ol.program-list,
-    ol.photo-order {
+    .feature-section {
+      position: relative;
+      overflow: hidden;
+      display: block;
+      padding: clamp(24px, 4vw, 40px);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.78)) padding-box,
+        linear-gradient(135deg, rgba(250, 216, 232, 0.32), rgba(214, 196, 255, 0.26), rgba(189, 230, 255, 0.26)) border-box;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-layout {
+      display: grid;
+      gap: clamp(18px, 4vw, 32px);
+      align-items: center;
+    }
+
+    .feature-copy {
+      display: grid;
+      gap: clamp(16px, 3vw, 26px);
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: clamp(20px, 4vw, 28px);
+      padding: clamp(20px, 4vw, 34px);
+      box-shadow: 0 18px 38px rgba(47, 29, 41, 0.16);
+      backdrop-filter: blur(14px);
+    }
+
+    .feature-portrait {
       margin: 0;
-      padding-left: 1.2em;
+      border-radius: clamp(20px, 4vw, 30px);
+      overflow: hidden;
+      position: relative;
+      min-height: clamp(240px, 45vw, 360px);
+      box-shadow: 0 28px 46px rgba(47, 29, 41, 0.22);
+      isolation: isolate;
+    }
+
+    .feature-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.45s ease;
+      filter: saturate(1.05) contrast(1.03);
+    }
+
+    .feature-portrait::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(47, 29, 41, 0.12) 0%, rgba(47, 29, 41, 0.42) 100%);
+      opacity: 0.58;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .feature-portrait figcaption {
+      position: absolute;
+      left: clamp(16px, 4vw, 28px);
+      bottom: clamp(16px, 4vw, 28px);
+      margin: 0;
+      padding: 10px 18px;
+      background: rgba(47, 29, 41, 0.36);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.72rem;
+      font-weight: 600;
+      border-radius: 999px;
+      box-shadow: 0 14px 26px rgba(47, 29, 41, 0.24);
+    }
+
+    .feature-section:hover .feature-portrait img {
+      transform: scale(1.035);
+    }
+
+    .feature-section:hover .feature-portrait::after {
+      opacity: 0.46;
+    }
+
+    .feature-copy ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: clamp(10px, 2.4vw, 16px);
       font-size: 1rem;
-      line-height: 1.85;
+      line-height: 1.7;
+      counter-reset: feature-counter;
       color: var(--text);
     }
 
-    ol.program-list li::marker,
-    ol.photo-order li::marker {
+    .feature-copy ol li {
+      counter-increment: feature-counter;
+      position: relative;
+      padding: clamp(14px, 3vw, 18px) clamp(18px, 4vw, 24px);
+      padding-left: clamp(54px, 7vw, 72px);
+      border-radius: clamp(18px, 4vw, 24px);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 16px 32px rgba(47, 29, 41, 0.12);
+    }
+
+    .feature-copy ol li::before {
+      content: counter(feature-counter, decimal-leading-zero);
+      position: absolute;
+      left: clamp(18px, 4vw, 26px);
+      top: 50%;
+      transform: translateY(-50%);
+      width: clamp(30px, 4vw, 40px);
+      height: clamp(30px, 4vw, 40px);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
       font-weight: 600;
-      color: var(--deep-lilac);
+      color: #fff;
+      background: linear-gradient(135deg, rgba(111, 95, 213, 0.92), rgba(217, 124, 165, 0.92));
+      box-shadow: 0 12px 22px rgba(47, 29, 41, 0.22);
+    }
+
+    .photo-feature .feature-copy ol li {
+      background: linear-gradient(135deg, rgba(250, 216, 232, 0.8), rgba(214, 196, 255, 0.68));
+      box-shadow: 0 22px 40px rgba(217, 124, 165, 0.22);
+    }
+
+    .photo-feature .feature-copy ol li::before {
+      background: linear-gradient(135deg, rgba(217, 124, 165, 0.96), rgba(111, 95, 213, 0.96));
+    }
+
+    .program-feature .feature-copy ol li {
+      background: linear-gradient(135deg, rgba(189, 230, 255, 0.78), rgba(214, 196, 255, 0.64));
+      box-shadow: 0 22px 40px rgba(111, 95, 213, 0.2);
+    }
+
+    .program-feature .feature-copy ol li::before {
+      background: linear-gradient(135deg, rgba(111, 95, 213, 0.96), rgba(94, 161, 214, 0.96));
     }
 
     .upload-card {
@@ -243,7 +375,21 @@
         linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.88));
       text-align: center;
       display: grid;
-      gap: 18px;
+      gap: clamp(16px, 3vw, 22px);
+      max-width: clamp(320px, 85vw, 560px);
+      margin: 0 auto;
+      justify-items: center;
+    }
+
+    .upload-card > * {
+      width: min(100%, 520px);
+    }
+
+    .dropzone,
+    .upload-card .status,
+    .upload-card .note,
+    .upload-card .status + .note {
+      width: 100%;
     }
 
     .dropzone {
@@ -254,6 +400,9 @@
       background: linear-gradient(135deg, rgba(250, 216, 232, 0.45), rgba(214, 196, 255, 0.4), rgba(189, 230, 255, 0.42));
       cursor: pointer;
       transition: border-color 0.3s ease, transform 0.3s ease;
+      width: 100%;
+      max-width: clamp(260px, 80vw, 460px);
+      margin: 0 auto;
     }
 
     .dropzone.active {
@@ -279,34 +428,60 @@
       color: var(--rich-rose);
     }
 
-    button {
-      border: none;
-      appearance: none;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: 14px 32px;
+    .upload-card button {
+      width: auto;
+      min-width: clamp(180px, 40vw, 260px);
+      justify-self: center;
+      padding: clamp(12px, 3vw, 14px) clamp(28px, 7vw, 40px);
+      margin: 4px auto 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.02em;
       border-radius: 999px;
-      color: white;
       background: linear-gradient(135deg, var(--deep-lilac), var(--rich-rose));
-      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 18px 32px rgba(47, 29, 41, 0.2);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    button:hover:not(:disabled) {
+    .upload-card button:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(139, 116, 184, 0.28);
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: wait;
+      box-shadow: 0 22px 38px rgba(47, 29, 41, 0.24);
     }
 
     .status {
       min-height: 1.2em;
       font-size: 0.95rem;
       color: var(--muted);
+      max-width: clamp(260px, 78vw, 500px);
+      margin: 0 auto;
+    }
+
+    .section-intro {
+      display: grid;
+      gap: 6px;
+      align-items: start;
+    }
+
+    .section-intro[data-align="share"] {
+      text-align: center;
+    }
+
+    .section-intro[data-align="share"] h2 {
+      justify-self: center;
+    }
+
+    .section-intro[data-align="share"] .note {
+      justify-self: center;
+      max-width: clamp(260px, 70vw, 520px);
+    }
+
+    .align-muted[data-align="share-note"] {
+      text-align: center;
+      max-width: clamp(280px, 72vw, 560px);
+      margin: 0 auto;
     }
 
     .gallery-grid {
@@ -461,16 +636,38 @@
       text-decoration: none;
     }
 
-    .download-hint {
-      margin: -4px 0 0;
-      font-size: 0.9rem;
-      color: var(--muted);
-      text-align: center;
+    @media (min-width: 900px) {
+      .hero {
+        margin-inline: auto;
+        max-width: 880px;
+      }
+
+      .hero .couple-gallery {
+        grid-template-columns: repeat(3, minmax(180px, 1fr));
+        justify-items: center;
+      }
+
+      .hero .couple-gallery img {
+        width: 100%;
+        max-width: 260px;
+      }
+
+      .feature-layout {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.45fr);
+      }
+
+      .feature-portrait {
+        min-height: 360px;
+      }
     }
 
     @media (max-width: 640px) {
       body {
         padding: 24px 16px 60px;
+      }
+
+      .page {
+        gap: clamp(32px, 7vw, 40px);
       }
 
       header {
@@ -485,13 +682,131 @@
         flex-direction: column;
       }
 
+      .hero-actions .link-button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      section {
+        padding: clamp(20px, 7vw, 32px);
+      }
+
+      .wedding-meta {
+        gap: 12px 20px;
+        font-size: 0.95rem;
+      }
+
+      .upload-card {
+        max-width: 100%;
+        padding: clamp(20px, 6vw, 36px);
+      }
+
+      .dropzone {
+        max-width: 100%;
+        padding: clamp(28px, 7vw, 44px);
+      }
+
       .gallery-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: clamp(14px, 5vw, 20px);
+      }
+
+      .gallery-card footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
       }
 
       .download-link {
         width: 100%;
         justify-content: center;
+      }
+
+      .view-more-link {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .feature-copy {
+        padding: clamp(18px, 6vw, 28px);
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.096);
+        box-shadow: 0 22px 36px rgba(47, 29, 41, 0.2);
+      }
+
+      .feature-copy ol li {
+        padding: clamp(12px, 6vw, 18px) clamp(14px, 6vw, 22px);
+        padding-left: clamp(48px, 12vw, 64px);
+      }
+
+      .feature-copy ol li::before {
+        left: clamp(16px, 8vw, 22px);
+      }
+
+      .feature-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-portrait {
+        display: none;
+      }
+
+      .feature-section::before,
+      .feature-section::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+
+      .feature-section::before {
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        filter: saturate(1.05);
+      }
+
+      .feature-section::after {
+        background: linear-gradient(150deg, rgba(47, 29, 41, 0.7), rgba(217, 124, 165, 0.36));
+        mix-blend-mode: multiply;
+      }
+
+      .feature-section:hover::after {
+        opacity: 0.9;
+      }
+
+      .photo-feature::before {
+        background-image: url('images/one.jpg');
+      }
+
+      .program-feature::before {
+        background-image: url('images/two.jpg');
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: clamp(2rem, 8vw, 2.5rem);
+      }
+
+      .wedding-meta span {
+        width: 100%;
+        text-align: center;
+      }
+
+      .upload-card button {
+        width: 100%;
+      }
+
+      .status {
+        font-size: 0.9rem;
+      }
+
+      .feature-portrait figcaption {
+        letter-spacing: 0.08em;
       }
     }
   </style>
@@ -499,7 +814,7 @@
 <body>
   <div class="page">
     <header>
-      <div class="hero">
+      <div class="hero" role="banner">
         <div class="logo-slot" aria-label="The Love Fusion wedding logo">
           <img src="images/logo.png" alt="The Love Fusion emblem">
         </div>
@@ -523,52 +838,68 @@
     </header>
 
     <main>
-      <section aria-labelledby="photo-order">
-        <div>
-          <h2 id="photo-order">Order of Photographs</h2>
-          <p class="note">Capture each treasured moment with elegance and intention.</p>
+      <section aria-labelledby="photo-order" class="feature-section photo-feature">
+        <div class="feature-layout">
+          <figure class="feature-portrait" aria-hidden="true">
+            <img src="images/one.jpg" alt="">
+            <figcaption>Curated frames for a graceful procession</figcaption>
+          </figure>
+          <div class="feature-copy">
+            <div class="section-intro">
+              <h2 id="photo-order">Order of Photographs</h2>
+              <p class="note">Capture each treasured moment with elegance and intention.</p>
+            </div>
+            <ol class="photo-order">
+              <li>Officiating Ministers</li>
+              <li>Bride and Groom</li>
+              <li>Parents of couple</li>
+              <li>Groom’s family</li>
+              <li>Bride’s family</li>
+              <li>Both families</li>
+              <li>Couple with Bestman and Chief Bridesmaid</li>
+              <li>Groom’s friends</li>
+              <li>Bride’s friends</li>
+              <li>Groom sisters and brothers</li>
+              <li>Bride’s siblings</li>
+              <li>Couple and Dahlia Agency</li>
+              <li>Bride and groom family friends</li>
+              <li>Couple and PineManor staffs</li>
+              <li>Couple and Results Refrigeration</li>
+            </ol>
+          </div>
         </div>
-        <ol class="photo-order">
-          <li>Officiating Ministers</li>
-          <li>Bride and Groom</li>
-          <li>Parents of couple</li>
-          <li>Groom’s family</li>
-          <li>Bride’s family</li>
-          <li>Both families</li>
-          <li>Couple with Bestman and Chief Bridesmaid</li>
-          <li>Groom’s friends</li>
-          <li>Bride’s friends</li>
-          <li>Groom sisters and brothers</li>
-          <li>Bride’s siblings</li>
-          <li>Couple and Dahlia Agency</li>
-          <li>Bride and groom family friends</li>
-          <li>Couple and PineManor staffs</li>
-          <li>Couple and Results Refrigeration</li>
-        </ol>
       </section>
 
-      <section aria-labelledby="program">
-        <div>
-          <h2 id="program">Wedding Reception Program</h2>
-          <p class="note">The flow of the evening designed to wrap our families and friends in joy.</p>
+      <section aria-labelledby="program" class="feature-section program-feature">
+        <div class="feature-layout">
+          <figure class="feature-portrait" aria-hidden="true">
+            <img src="images/two.jpg" alt="">
+            <figcaption>Every toast and twirl in harmonious rhythm</figcaption>
+          </figure>
+          <div class="feature-copy">
+            <div class="section-intro">
+              <h2 id="program">Wedding Reception Program</h2>
+              <p class="note">The flow of the evening designed to wrap our families and friends in joy.</p>
+            </div>
+            <ol class="program-list">
+              <li>Arrival of guests</li>
+              <li>Introduction of dignitaries</li>
+              <li>Couple arrival</li>
+              <li>Opening prayer</li>
+              <li>A word by the chairman</li>
+              <li>First dance</li>
+              <li>Cutting of the cake</li>
+              <li>Toast</li>
+              <li>Father and daughter dance</li>
+              <li>Nuptial dance</li>
+              <li>Refreshment</li>
+            </ol>
+          </div>
         </div>
-        <ol class="program-list">
-          <li>Arrival of guests</li>
-          <li>Introduction of dignitaries</li>
-          <li>Couple arrival</li>
-          <li>Opening prayer</li>
-          <li>A word by the chairman</li>
-          <li>First dance</li>
-          <li>Cutting of the cake</li>
-          <li>Toast</li>
-          <li>Father and daughter dance</li>
-          <li>Nuptial dance</li>
-          <li>Refreshment</li>
-        </ol>
       </section>
 
       <section aria-labelledby="share">
-        <div>
+        <div class="section-intro" data-align="share">
           <h2 id="share">Share Your Moments</h2>
           <p class="note">Upload photos or videos from the celebration. Every upload adds magic to our memory wall.</p>
         </div>
@@ -583,7 +914,7 @@
           <p id="status" class="status" role="status" aria-live="polite"></p>
           <p class="note">Need help? Call our support desk at <a href="tel:+911234567890">+91 12345 67890</a>.</p>
         </form>
-        <p class="note">Uploads travel straight to our secure Cloudinary vault and appear in the memory gallery moments later.</p>
+        <p class="note align-muted" data-align="share-note">Uploads travel straight to our secure Cloudinary vault and appear in the memory gallery moments later.</p>
       </section>
 
       <section aria-labelledby="gallery">
@@ -610,14 +941,14 @@
       <div class="media-wrapper"></div>
       <footer>
         <span class="media-title"></span>
-        <a class="download-link" target="_blank" rel="noopener" download>
+        <a class="download-link" download>
           <span>Download</span>
         </a>
       </footer>
     </article>
   </template>
 
- <script>
+  <script>
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('file');
     const dropzone = document.getElementById('dropzone');
