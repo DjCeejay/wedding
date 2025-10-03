@@ -556,7 +556,7 @@
     </article>
   </template>
 
-  <script>
+ <script>
     const uploadForm = document.getElementById('uploadForm');
     const fileInput = document.getElementById('file');
     const dropzone = document.getElementById('dropzone');
@@ -571,12 +571,10 @@
     const CLOUDINARY_CONFIG = {
       cloudName: 'dl5vwxss5',
       galleryTag: 'love-fusion',
-      galleryFolder: 'weddings/love_fusion',
     };
 
     const CLOUDINARY_UPLOAD_PRESET = 'love_fusion_uploads';
     const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/auto/upload`;
-
     const MAX_FILES = 10;
 
     function resetStatus(message = '') {
@@ -700,14 +698,9 @@
       }
     });
 
-    function folderToListKey(folder) {
-      return folder.replace(/\//g, '_');
-    }
-
     async function fetchResourceList(resourceType, cacheBuster = '') {
-      const { cloudName, galleryTag, galleryFolder } = CLOUDINARY_CONFIG;
-      const listKey = galleryFolder ? folderToListKey(galleryFolder) : galleryTag;
-      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${listKey}.json${cacheBuster}`;
+      const { cloudName, galleryTag } = CLOUDINARY_CONFIG;
+      const listUrl = `https://res.cloudinary.com/${cloudName}/${resourceType}/list/${galleryTag}.json${cacheBuster}`;
       const response = await fetch(listUrl, { cache: 'no-store' });
 
       if (response.status === 404) {
@@ -734,7 +727,24 @@
       const format = resource.format;
       const isVideo = resource.resource_type === 'video';
       const baseUrl = `https://res.cloudinary.com/${CLOUDINARY_CONFIG.cloudName}`;
+
+      // Nice clean filename from caption or the last part of public_id
+      const fileName =
+        (resource.context?.custom?.caption || publicId.split('/').pop())
+          .replace(/[^\w\-]+/g, '_');
+
+      // Preview URL stays the same as before:
       const mediaUrl = `${baseUrl}/${isVideo ? 'video' : 'image'}/upload/${publicId}.${format}`;
+
+      // Force download using fl_attachment:<filename>
+      const attachmentUrl =
+        `${baseUrl}/${isVideo ? 'video' : 'image'}` +
+        `/upload/fl_attachment` +
+        `/${publicId}.${format}`;
+
+      downloadLink.href = attachmentUrl;
+      downloadLink.setAttribute('download', `${fileName}.${format}`);
+
 
       if (isVideo) {
         const video = document.createElement('video');
@@ -747,14 +757,13 @@
       } else {
         const img = document.createElement('img');
         img.loading = 'lazy';
+        img.decoding = 'async';
         img.src = `${baseUrl}/image/upload/c_fill,w_900,h_900/${publicId}.${format}`;
         img.alt = (resource.context?.custom?.caption || publicId.split('/').pop()).replace(/[-_]/g, ' ');
         wrapper.appendChild(img);
       }
 
       titleEl.textContent = resource.context?.custom?.caption || publicId.split('/').pop();
-      downloadLink.href = mediaUrl;
-      downloadLink.setAttribute('download', `${publicId}.${format}`);
 
       return card;
     }
@@ -797,6 +806,7 @@
         });
       } catch (error) {
         console.error(error);
+        galleryGrid.innerHTML = '';
         galleryEmpty.hidden = false;
         galleryEmpty.textContent = error?.message || 'We could not connect to Cloudinary. Please confirm your tag and try again.';
       }
