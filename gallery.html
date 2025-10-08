@@ -194,9 +194,10 @@
 
     .featured-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: clamp(14px, 3vw, 18px);
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: clamp(12px, 3vw, 18px);
       padding-inline: clamp(0px, 3vw, 12px);
+      align-items: start;
     }
 
     .featured-gallery figure {
@@ -247,8 +248,9 @@
 
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: clamp(16px, 3vw, 24px);
+      /* Default: two columns for small/medium screens */
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(12px, 3vw, 20px);
       width: 100%;
       max-width: 1040px;
       margin: 0 auto;
@@ -364,7 +366,7 @@
       font-weight: 600;
     }
 
-    @media (max-width: 640px) {
+  @media (max-width: 880px) {
       nav {
         justify-content: center;
       }
@@ -388,8 +390,55 @@
         justify-content: center;
       }
 
+      /* Keep two columns on tablet-ish sizes */
       .gallery-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Extra small screens: reduce paddings, gaps and card radius for better fit */
+    @media (max-width: 420px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      .page {
+        gap: 20px;
+        padding-inline: 8px;
+      }
+
+      header {
+        padding: 18px 12px 22px;
+      }
+
+      .featured-gallery {
+        gap: 10px;
+      }
+
+      .featured-gallery figure {
+        border-radius: 16px;
+      }
+
+      .gallery-card {
+        border-radius: 14px;
+      }
+
+      .gallery-card footer {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        padding: 8px 10px;
+      }
+      /* Single column on very small screens */
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Large screens: allow more columns */
+    @media (min-width: 1100px) {
+      .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   </style>
@@ -414,13 +463,13 @@
         </div>
         <div class="featured-gallery">
           <figure>
-            <img src="images/IMG_1156.JPG" alt="The couple smiling during an outdoor stroll" loading="lazy">
+            <img src="images/IMG_1156.jpg" alt="The couple smiling during an outdoor stroll" loading="lazy">
           </figure>
           <figure>
-            <img src="images/IMG_1159.JPG" alt="Romantic portrait of the couple embracing" loading="lazy">
+            <img src="images/IMG_1159.jpg" alt="Romantic portrait of the couple embracing" loading="lazy">
           </figure>
           <figure>
-            <img src="images/IMG_1162.JPG" alt="Joyful moment shared by the couple" loading="lazy">
+            <img src="images/IMG_1162.jpg" alt="Joyful moment shared by the couple" loading="lazy">
           </figure>
         </div>
       </div>
